@@ -82,7 +82,7 @@ export default function BuyProductButton(props: any) {
 
     console.log("buyProduct")
 
-    let buyProduct = await dataUserSession.contractInstance.methods.buy_product(idProduct, false, '', { amount: priceProduct * (10 ** 18) })
+    let buyProduct = await dataUserSession.contractInstance.methods.buy_product(idProduct, false, '', { amount: priceProduct})
 
     console.log(buyProduct)
 
@@ -99,8 +99,8 @@ export default function BuyProductButton(props: any) {
   const buyProductWithCoupon = async () => {
 
     console.log("buyProduct With coupon")
-    
-    let buyProduct = await dataUserSession.contractInstance.methods.buy_product(idProduct, true, couponCode,{ amount: priceProduct * (10 ** 18) })
+
+    let buyProduct = await dataUserSession.contractInstance.methods.buy_product(idProduct, true, couponCode,{ amount: priceProduct })
 
     console.log('buyProduct withcoupon',buyProduct)
 
@@ -124,7 +124,7 @@ export default function BuyProductButton(props: any) {
         return (<div className="coupon-alert-text">Coupon is not valid </div>)
       }
       else {
-        let formatPrice = priceProduct * 10 ** 18
+        let formatPrice = priceProduct
         let discountAmountValueFormat = discountAmountValue
         let newPriceTypeAmount = formatPrice - discountAmountValueFormat
 
@@ -133,7 +133,7 @@ export default function BuyProductButton(props: any) {
           return (
             <div className="coupon-success-text mt-2">
               <div>
-                Your Coupon is {discountAmountValueFormat/(10**18)} STX off
+                Your Coupon is {discountAmountValueFormat/(10**18)} AE off
               </div>
               <div className='text-danger'>
                 Please contact the seller to get this product for free!
@@ -144,10 +144,10 @@ export default function BuyProductButton(props: any) {
           return (
             <div className="coupon-success-text mt-2">
               <div>
-                Your Coupon is {discountAmountValueFormat/10**18} STX off
+                Your Coupon is {discountAmountValueFormat/10**18} AE off
               </div>
               <div>
-                The current price of the product is <span className="new-price-discount">{newPriceTypeAmount/10**18} STX</span>
+                The current price of the product is <span className="new-price-discount">{newPriceTypeAmount/10**18} AE</span>
               </div>
             </div>
           )
@@ -163,7 +163,7 @@ export default function BuyProductButton(props: any) {
     setDiscountAmountValue(discountAmount)
     setIsDiscountPercent(false)
 
-    let formatPrice = priceProduct * 10 ** 18
+    let formatPrice = priceProduct
     let discountAmountValueFormat = discountAmount
     let newPriceTypeAmount = formatPrice - discountAmountValueFormat
 

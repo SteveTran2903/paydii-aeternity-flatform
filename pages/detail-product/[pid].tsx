@@ -563,8 +563,8 @@ const Page: NextPageWithLayout = () => {
               <p className="font-weight-semi-bold">Adress Owner: {dataProductDetail['seller']}</p>
             </div>
             <h3 className="font-weight-semi-bold mb-4">
-              {(Number(dataProductDetail['price'])).toFixed(4)}
-              <span className='currency-product'> STX</span>
+              {(Number(dataProductDetail['price'])/(10**18)).toFixed(4)}
+              <span className='currency-product'> AE</span>
             </h3>
 
             <p className="mb-4">

@@ -33,7 +33,7 @@ export default function ListProduct() {
           let obj = {
             id: item.tx.arguments[0].value,
             name: item.tx.arguments[1].value,
-            price: Number(item.tx.arguments[2].value),
+            price: Number(item.tx.arguments[2].value) / 10**18,
             description: item.tx.arguments[3].value,
             image: item.tx.arguments[4].value,
             active: item.tx.arguments[5].value,
