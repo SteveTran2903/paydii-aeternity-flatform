@@ -66,13 +66,13 @@ payable contract Paydii =
             }
 
     payable stateful entrypoint buy_product(id: string, has_coupon: bool, coupon_code: string) : unit =
-        let attos_unit :int = 1000000000000000000
+        // let attos_unit :int = 1000000000000000000
         require(( Map.lookup(id,state.products) != None) , "Product with this id is not exist")
         let product = state.products[id]
         require(( product.seller != Call.caller) , "You can't buy your own product")
         require(( product.is_active == true) , "Product is in-active")
         require( !(List.contains(Call.caller, get_buyer_addresses(id))), "You already bought this product!")
-        require(Call.value >= product.price * attos_unit, "You don't have enough AE to buy this product")
+        require(Call.value >= product.price, "You don't have enough attos to buy this product")
         // add this product to buyer purchased products
         let new_info = { 
             product_id = product.id,
@@ -97,7 +97,7 @@ payable contract Paydii =
 
         // buyer send AE to seller without coupon 
         if (!has_coupon)
-            Chain.spend(product.seller, product.price  * attos_unit)
+            Chain.spend(product.seller, product.price)
         // buyer has coupon 
         else 
             let current_coupon_key = {
@@ -108,7 +108,7 @@ payable contract Paydii =
             let coupon = state.coupons[current_coupon_key]
             require( (coupon.allowed_uses > 0 ), "This coupon's allowed uses is 0" )
             let new_discount_price = product.price - coupon.discount_amount
-            Chain.spend(product.seller, new_discount_price  * attos_unit)
+            Chain.spend(product.seller, new_discount_price)
             
     public stateful entrypoint create_coupon(product_id: string, code: string, allowed_uses: int, discount_amount: int) : coupon_key = 
         require(( Map.lookup(product_id,state.products) != None) , "Product with this id is not exist")
