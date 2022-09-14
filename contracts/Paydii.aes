@@ -3,7 +3,7 @@
 include "String.aes"
 
 payable contract Paydii =
-    // TODO: add review, add statistic, unit test  
+    // TODO: check active product status, add statistic, unit test  
     datatype event = Event1(address, int,int)
     record state =
         { index         : int
@@ -13,12 +13,21 @@ payable contract Paydii =
         , coupons_by_seller: map(address, list(string)) // each seller has many coupons (address,code)
         , buyers: map(address, list(purchased_info))  // one buyers has bought many products 
         , buyer_addresses: map(string,list(address)) // one product is bought by many buyers
+        , reviews: map(string, list(review)) // one product has many reviews 
+        , my_reviews: map(address,list(review)) // one user reviews many product
+    
         } 
     
     record coupon_key = {
         product_id: string,
         code: string,
         seller: address }
+
+    record review = {
+        product_id: string,
+        reviewer: address,
+        content: string,
+        star: int }
 
     record product = {
         id: string,
@@ -51,6 +60,8 @@ payable contract Paydii =
             buyer_addresses = {},
             coupons_by_seller = {},
             products_by_seller = {},
+            reviews = {},
+            my_reviews = {},
             index = 1 
             }
 
@@ -59,6 +70,7 @@ payable contract Paydii =
         require(( Map.lookup(id,state.products) != None) , "Product with this id is not exist")
         let product = state.products[id]
         require(( product.seller != Call.caller) , "You can't buy your own product")
+        require(( product.is_active == true) , "Product is in-active")
         require( !(List.contains(Call.caller, get_buyer_addresses(id))), "You already bought this product!")
         require(Call.value >= product.price * attos_unit, "You don't have enough AE to buy this product")
         // add this product to buyer purchased products
@@ -85,7 +97,7 @@ payable contract Paydii =
 
         // buyer send AE to seller without coupon 
         if (!has_coupon)
-            Chain.spend(product.seller, product.price)
+            Chain.spend(product.seller, product.price  * attos_unit)
         // buyer has coupon 
         else 
             let current_coupon_key = {
@@ -96,7 +108,7 @@ payable contract Paydii =
             let coupon = state.coupons[current_coupon_key]
             require( (coupon.allowed_uses > 0 ), "This coupon's allowed uses is 0" )
             let new_discount_price = product.price - coupon.discount_amount
-            Chain.spend(product.seller, new_discount_price)
+            Chain.spend(product.seller, new_discount_price  * attos_unit)
             
     public stateful entrypoint create_coupon(product_id: string, code: string, allowed_uses: int, discount_amount: int) : coupon_key = 
         require(( Map.lookup(product_id,state.products) != None) , "Product with this id is not exist")
@@ -168,6 +180,7 @@ payable contract Paydii =
             let current_product = state.products_by_seller[Call.caller]
             let new_list = List.insert_at(List.length(current_product) - 1,id,current_product)
             put(state{products_by_seller[Call.caller] = new_list })        
+        
         new_product.id
 
     public stateful entrypoint update_product(id: string, name: string, price: int, description: string, img: string, is_active: bool) : string = 
@@ -187,6 +200,37 @@ payable contract Paydii =
         put(state{products[id] = updated_product})
         state.products[id].id
     
+    public stateful entrypoint add_review(product_id: string, content: string, star: int) : review = 
+        require(( Map.lookup(product_id,state.products) != None) , "Product with this id is not exist")
+        let product = state.products[product_id]
+        require(( product.seller != Call.caller) , "You can't review your own product")
+        require(( product.is_active == true) , "Product is in-active")
+        require( ( List.contains(Call.caller,state.buyer_addresses[product_id]) ), "You haven't bought this product yet!" )
+        let new_review : review = {
+            product_id = product_id,
+            reviewer = Call.caller,
+            content = content,
+            star = star }
+        require( !List.contains(new_review,get_my_reviews(Call.caller)), "You already reviewd this product")
+
+        // if product has the first review
+        if (Map.lookup(product_id,state.reviews) == None)
+            put(state{reviews[product_id] = [new_review] })
+        else 
+            let current_reviews = state.reviews[product_id]
+            let new_review_list = List.insert_at(List.length(current_reviews) - 1,new_review,current_reviews)
+            put(state{reviews[product_id] = new_review_list })        
+        
+        // if user has review the first product 
+        if (Map.lookup(Call.caller,state.my_reviews) == None)
+            put(state{my_reviews[Call.caller] = [new_review] })
+        else 
+            let current_my_reviews = state.my_reviews[Call.caller]
+            let new_my_review_list = List.insert_at(List.length(current_my_reviews) - 1,new_review,current_my_reviews)
+            put(state{my_reviews[Call.caller] = new_my_review_list })        
+
+        new_review
+
     // get list of product a seller has created 
     entrypoint get_seller_products(seller: address) : list(string) =  
         if (Map.lookup(seller,state.products_by_seller) == None)
@@ -214,6 +258,20 @@ payable contract Paydii =
         else 
             state.buyer_addresses[product_id]
     
+    // get review list of a product
+    entrypoint get_reviews(product_id: string) : list(review) =  
+        if (Map.lookup(product_id,state.reviews) == None)
+            []
+        else 
+            state.reviews[product_id]
+    
+    // get all review from a user
+    entrypoint get_my_reviews(reviewer: address) : list(review) =  
+        if (Map.lookup(reviewer,state.my_reviews) == None)
+            []
+        else 
+            state.my_reviews[reviewer]
+
     // get product details
     entrypoint get_product(id: string) : product =
         require(product_exists(id), "There is no product with this id")
@@ -231,5 +289,52 @@ payable contract Paydii =
                 seller = seller }
         require( (Map.lookup(current_coupon_key,state.coupons) != None), "This coupon is not exist" )
         state.coupons[current_coupon_key]
+    
+    // no need AE to buy - use this to test
+    payable stateful entrypoint buy_product_test(id: string, has_coupon: bool, coupon_code: string) : bool =
+        let attos_unit :int = 1000000000000000000
+        require(( Map.lookup(id,state.products) != None) , "Product with this id is not exist")
+        let product = state.products[id]
+        require(( product.seller != Call.caller) , "You can't buy your own product")
+        require( !(List.contains(Call.caller, get_buyer_addresses(id))), "You already bought this product!")
+        // require(Call.value >= product.price * attos_unit, "You don't have enough AE to buy this product")
+        // add this product to buyer purchased products
+        let new_info = { 
+            product_id = product.id,
+            origin_price = product.price, 
+            profit_price = product.price }
         
+        // update list of purchased products
+        if (Map.lookup(Call.caller,state.buyers) == None)
+            put(state{buyers[Call.caller] = [new_info] })
+        else 
+            let current_purchased_info_list = state.buyers[Call.caller]
+            let new_purchased_info_list = List.insert_at(List.length(current_purchased_info_list) - 1, new_info ,current_purchased_info_list)
+            put(state{buyers[Call.caller] = new_purchased_info_list })        
+        
+        // update list of buyer ids 
+        if (Map.lookup(product.id,state.buyer_addresses) == None)
+            put(state{buyer_addresses[product.id] = [Call.caller] })
+        else 
+            let current_buyer_addresses = state.buyer_addresses[product.id]
+            let new_buyer_addresses = List.insert_at(List.length(current_buyer_addresses) - 1, Call.caller ,current_buyer_addresses)
+            put(state{buyer_addresses[product.id] = new_buyer_addresses })        
+
+        // buyer send AE to seller without coupon 
+        if (!has_coupon)
+            // Chain.spend(product.seller, product.price)
+            true
+        // buyer has coupon 
+        else 
+            let current_coupon_key = {
+                product_id = product.id,
+                code = coupon_code, 
+                seller = product.seller }
+            require( (Map.lookup(current_coupon_key,state.coupons) != None), "This coupon is not exist" )
+            let coupon = state.coupons[current_coupon_key]
+            require( (coupon.allowed_uses > 0 ), "This coupon's allowed uses is 0" )
+            let new_discount_price = product.price - coupon.discount_amount
+            // Chain.spend(product.seller, new_discount_price)
+            true
+
     
