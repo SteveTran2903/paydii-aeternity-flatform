@@ -17,9 +17,13 @@
         "@stacks/network": "^4.3.2",
         "@stacks/storage": "^4.3.4",
         "@stacks/transactions": "^4.3.3",
+        "@stamp/it": "^1.1.0",
+        "@stamp/required": "^1.0.1",
         "@tailwindcss/forms": "^0.5.2",
         "@types/react-star-rating-component": "^1.4.1",
         "@types/use-persisted-state": "^0.3.1",
+        "aes-js": "^3.1.2",
+        "bip32-path": "^0.4.2",
         "bootstrap": "^5.2.0",
         "bs58check": "^2.1.2",
         "chart.js": "^3.9.1",
@@ -36,8 +40,11 @@
         "sass": "^1.54.4",
         "swagger-client": "^3.18.5",
         "sweetalert2": "^11.4.29",
+        "tweetnacl": "^1.0.3",
+        "tweetnacl-auth": "^1.0.1",
         "use-persisted-state": "^0.3.3",
-        "uuid": "^8.3.2"
+        "uuid": "^8.3.2",
+        "websocket": "^1.0.34"
     },
     "devDependencies": {
         "@types/node": "17.0.4",

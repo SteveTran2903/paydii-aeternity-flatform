@@ -61,7 +61,7 @@
 // }
 
 export const getAllTxsAddressContract = async () => {
-  let finalUrl = 'https://testnet.aeternity.io/mdw/v2/txs?direction=forward&contract=ct_XugXGHHkWjBt8w8a7WgwZxfx152i38knor2JTNjQHpWmwZzTC&limit=50'
+  let finalUrl = 'https://testnet.aeternity.io/mdw/v2/txs?direction=forward&contract=ct_2NJXsZtSfGgexhN5qEnkCMtrVeewod5TvZ4AU7j7te5ymQMVhi&limit=50'
   const response = await fetch(finalUrl, {
     method: 'GET', 
     headers: {
