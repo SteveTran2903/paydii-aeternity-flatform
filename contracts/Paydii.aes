@@ -96,7 +96,7 @@ payable contract Paydii =
             put(state{buyer_addresses[product.id] = new_buyer_addresses })        
 
         // buyer send AE to seller without coupon 
-        if (!has_coupon)
+        if (has_coupon == false)
             Chain.spend(product.seller, product.price)
         // buyer has coupon 
         else 
