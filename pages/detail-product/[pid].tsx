@@ -60,7 +60,8 @@ const Page: NextPageWithLayout = () => {
   useEffect(() => {
     if (pid) {
       if (dataUserSession.address) {
-        if (dataProductDetail.seller) {
+        console.log('dataProductDetail',dataProductDetail)
+        if (dataProductDetail && dataProductDetail.seller) {
           if (dataProductDetail.seller == dataUserSession.address) {
             setIsOwnerProduct(true)
           }
