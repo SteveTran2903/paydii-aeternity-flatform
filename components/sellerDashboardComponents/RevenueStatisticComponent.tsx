@@ -6,6 +6,8 @@ export default function RevenueStatisticComponent(props: any) {
   const canvasEl = useRef(null);
 
   const [noData, setNoData] = useState(false)
+  console.log('RevenueStatisticComponent');
+  
 
   useEffect(() => {
     
@@ -16,9 +18,11 @@ export default function RevenueStatisticComponent(props: any) {
         let listValue:any[] = []
       
         props.data.forEach((item:any) => {
-          listLabel.push(item.nameProduct)
-          listValue.push(Number(item.revenue)/1000000)
+          listLabel.push(item.product.product.name)
+          listValue.push(Number(item.dataReceipt.origin_price)/10**18)
         })
+
+        console.log(listLabel,listValue)
 
         initDataChart(listLabel,listValue)
       } else {

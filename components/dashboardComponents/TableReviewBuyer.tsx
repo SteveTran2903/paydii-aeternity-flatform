@@ -22,10 +22,10 @@ export default function TableReviewByBuyer(props:any) {
           <tr key={index} className="row-table-product-buyer">
             <td style={{width: '30%'}}>
               <div className="d-flex ">
-                <img className="img-prod" src={item['image']} alt="" />
+                <img className="img-prod" src={item['img']} alt="" />
                 <div>
-                  <h6>{truncateString(item['productName'],30)}</h6>
-                  <p>Id:{truncateString(item['productID'],30)}</p>
+                  <h6>{truncateString(item['name'],30)}</h6>
+                  <p>Id:{truncateString(item['id'],30)}</p>
                 </div>
               </div>
             </td>
@@ -36,7 +36,7 @@ export default function TableReviewByBuyer(props:any) {
               <ReactStars name={'rate' + index} editing={false} starCount={5} value={item.star} starColor={'#ffd700'}></ReactStars>
             </td>
             <td style={{width: '20%'}}>
-                <Link href={'/detail-product/' + item['productID']}>
+                <Link href={'/detail-product/' + item['id']}>
                   <button className="button-view-detail-table flex btn btn-otline-dark align-items-center">
                     <i className="mdi mdi-eye" />
                     View

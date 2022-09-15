@@ -15,18 +15,21 @@ export default function TransactionStatisticComponent(props: any) {
           <tr key={index} className="row-table-product-buyer">
             <td>
               <div className="d-flex ">
-                <img className="img-prod" src={item['productImage']} alt="" />
+                <img className="img-prod" src={item['product']['product']['img']} alt="" />
                 <div>
-                  <h6>{truncateString(item['productName'],30)}</h6>
-                  <p>Id: {item['id']}</p>
+                  <h6>{truncateString(item['product']['product']['name'],30)}</h6>
+                  <p>Id: {item['product']['product']['id']}</p>
                 </div>
               </div>
             </td>
             <td>
-              <h6>{ Number(item['value']['data']['origin-price']['value'])/1000000} STX</h6>
+              <h6>{item['addressBuyer'] }</h6>
             </td>
             <td>
-              <h6>{ Number(item['value']['data']['profit-price']['value'])/1000000} STX</h6>
+              <h6>{ Number(item['dataReceipt']['origin_price'])/10**18} AE</h6>
+            </td>
+            <td>
+              <h6>{ Number(item['dataReceipt']['profit_price'])/10**18} AE</h6>
             </td>
           </tr>
         )
@@ -61,6 +64,7 @@ export default function TransactionStatisticComponent(props: any) {
               <thead>
                 <tr>
                   <th>Product</th>
+                  <th>Address Buyer</th>
                   <th>Revenue</th>
                   <th>Profit</th>
                   {/* <th>Status</th> */}

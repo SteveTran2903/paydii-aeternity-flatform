@@ -2,22 +2,23 @@ import type { ReactElement } from 'react'
 import LayoutDashboard from '../../../components/LayoutDashboard'
 import type { NextPageWithLayout } from '../../_app'
 import { useEffect, useState } from "react";
+import { useAeternity } from "../../../providers/AeternityProvider";
 
-import { useStacks } from "../../../providers/StacksProvider";
-import { contractOwnerAddress, contractName, fullContractOwnerAddressName } from '../../../network-config';
-import { StringAsciiCV, stringAsciiCV, cvToHex, hexToCV, standardPrincipalCV , ClarityType } from '@stacks/transactions';
+// import { contractOwnerAddress, contractName, fullContractOwnerAddressName } from '../../../network-config';
+// import { StringAsciiCV, stringAsciiCV, cvToHex, hexToCV, standardPrincipalCV , ClarityType } from '@stacks/transactions';
+// import { ReadOnlyFunctionSuccessResponse } from '@stacks/blockchain-api-client';
+// import {contractsApi} from '../../../api/config';
+// import { getTxsAddressByPagination, getTxsContractTemp,getTxsAddressContractByPagination,getTxsAddressTemp } from '../../../api/transaction';
 
-import { ReadOnlyFunctionSuccessResponse } from '@stacks/blockchain-api-client';
-import {contractsApi} from '../../../api/config';
+
 import Link from 'next/link'
 import TableCoupons from '../../../components/sellerDashboardComponents/TableCoupons';
 import LoadingData from '../../../components/LoadingData';
-import { getTxsAddressByPagination, getTxsContractTemp,getTxsAddressContractByPagination,getTxsAddressTemp } from '../../../api/transaction';
 
 
 const Page: NextPageWithLayout = () => {
 
-  const dataUserSession = useStacks()
+  const dataUserSession = useAeternity()
   console.log('data user session', dataUserSession)
 
   const [listProductIDs, setListProductIDs] = useState([]);
@@ -36,10 +37,10 @@ const Page: NextPageWithLayout = () => {
   useEffect(() => {
     if(dataUserSession.address) {
      
-      getTxsContractTemp().then(txsInfo => {
-        let totalItem:number = txsInfo['total']
-        execPromiseContract(getListPromiseOfAllTxsContract(totalItem))
-      })
+      // getTxsContractTemp().then(txsInfo => {
+      //   let totalItem:number = txsInfo['total']
+      //   execPromiseContract(getListPromiseOfAllTxsContract(totalItem))
+      // })
 
 
       // getListProducBySeller(dataUserSession.address)
@@ -47,6 +48,47 @@ const Page: NextPageWithLayout = () => {
     }
   },[dataUserSession.address])
 
+  useEffect(() => {
+    if (dataUserSession.contractInstance) {
+      if (dataUserSession.address) {
+        getListCouponSeller(dataUserSession.address)
+      }
+    }
+  }, [dataUserSession.contractInstance])
+
+
+  const getListCouponSeller = async (address:string) => {
+    
+    let listCouponOfSeller = await dataUserSession.contractInstance.methods.get_seller_coupons(dataUserSession.address)
+    console.log('listCouponIDsOfSeller', listCouponOfSeller.decodedResult)
+    // getDetailAllCouponOfSeller(listCouponOfSeller.decodedResult)
+  }
+
+  const getDetailAllCouponOfSeller = (listCouponIds: any) => {
+
+    let listPromise: any[] = []
+    listCouponIds.forEach((itemId: any) => {
+      listPromise.push(dataUserSession.contractInstance.methods.get_coupon_details(itemId))
+    })
+
+    Promise.all(listPromise).then((values) => {
+      let listProductDetail: any = []
+
+      values.forEach((item_value, index) => {
+        let obj = item_value.decodedResult
+        obj.urlBuy = '/detail-product/' + item_value.decodedResult.id
+        listProductDetail.push(obj)
+      })
+
+      console.log('listProductSelletDetailFinal', listProductDetail);
+
+      templateListProduct = listProductDetail
+      let temp = toObject(listProductDetail)
+      setTemplateListProduct(temp)
+    });
+
+    setLoadingData(false)
+  }
 
 
   const execPromiseContract = (listPromise:any) => {

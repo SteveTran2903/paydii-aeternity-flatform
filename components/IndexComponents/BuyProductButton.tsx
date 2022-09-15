@@ -100,7 +100,9 @@ export default function BuyProductButton(props: any) {
 
     console.log("buyProduct With coupon")
 
-    let buyProduct = await dataUserSession.contractInstance.methods.buy_product(idProduct, true, couponCode,{ amount: priceProduct })
+    let newAmount = priceProduct - discountAmountValue
+
+    let buyProduct = await dataUserSession.contractInstance.methods.buy_product(idProduct, true, couponCode,{ amount: newAmount })
 
     console.log('buyProduct withcoupon',buyProduct)
 

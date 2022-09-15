@@ -80,7 +80,7 @@ export default function TableProducts(props:any) {
               <h6>{truncateString(item['description'], 30)}</h6>
             </td>
             <td>
-              {renderStatusProduct(item['is-active'])}
+              {renderStatusProduct(item['is_active'])}
             </td>
             {renderViewDetail(item['id'])}
             <td>

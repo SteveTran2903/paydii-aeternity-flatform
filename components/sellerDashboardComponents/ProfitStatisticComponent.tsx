@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Chart from "chart.js/auto";
 
 export default function ProfitStatisticComponent(props: any) {
@@ -6,28 +6,29 @@ export default function ProfitStatisticComponent(props: any) {
   const canvasEl = useRef(null);
 
   useEffect(() => {
-    
-    if(props.data) {
-      if(props.data.length>0) {
-      let listLabel:any[] = []
-      let listValue:any[] = []
-     
-      props.data.forEach((item:any) => {
-        listLabel.push(item.nameProduct)
-        listValue.push(Number(item.profit)/1000000)
-      })
 
-      initDataChart(listLabel,listValue)
+    if (props.data) {
+      if (props.data.length > 0) {
+        let listLabel: any[] = []
+        let listValue: any[] = []
+
+        props.data.forEach((item: any) => {
+
+          listLabel.push(item.product.product.name)
+          listValue.push(Number(item.dataReceipt.profit_price) / 10 ** 18)
+        })
+
+        initDataChart(listLabel, listValue)
       }
     }
 
-  },[props.data]);
+  }, [props.data]);
 
-  const initDataChart = (labelsData:any[], valueData: any[]) => {
+  const initDataChart = (labelsData: any[], valueData: any[]) => {
     const ctx = canvasEl.current.getContext("2d");
 
     const labels = labelsData
-    
+
     const data = {
       labels: labels,
       datasets: [{
@@ -70,9 +71,9 @@ export default function ProfitStatisticComponent(props: any) {
             display: false
           }
         }
-        
+
       },
-      
+
     };
     const myLineChart = new Chart(ctx, config);
 
@@ -92,7 +93,7 @@ export default function ProfitStatisticComponent(props: any) {
                   <div>
                     <h3 className="card-title card-title-dash">Profit infomation </h3>
                     <p className="card-subtitle card-subtitle-dash">
-                      Detail profit of each product 
+                      Detail profit of each product
                     </p>
                   </div>
                   <div id="performance-line-legend" />

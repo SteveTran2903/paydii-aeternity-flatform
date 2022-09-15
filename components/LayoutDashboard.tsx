@@ -6,7 +6,6 @@ import { Toaster } from 'react-hot-toast'
 import AeternityProvider from '../providers/AeternityProvider'
 
 import HeaderDashboard from "./dashboardComponents/HeaderDashboard";
-import ProgressBar from "./ProgressBar";
 
 export default function LayoutDashboard({ children }: PropsWithChildren<{}>) {
 
@@ -18,7 +17,6 @@ export default function LayoutDashboard({ children }: PropsWithChildren<{}>) {
     <AeternityProvider>
       <div>
         <div className="container-scroller">
-          <ProgressBar></ProgressBar>
           <HeaderDashboard></HeaderDashboard>
 
           <div className="container-fluid page-body-wrapper">

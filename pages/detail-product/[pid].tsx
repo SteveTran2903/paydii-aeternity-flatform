@@ -21,14 +21,13 @@ import { appDetails } from "../../lib/constants"
 
 import truncateMiddle from "../../lib/truncate";
 import LoadingData from '../../components/LoadingData';
+import Swal from 'sweetalert2'
 
 
 const Page: NextPageWithLayout = () => {
   const router = useRouter()
   const [dataProductDetail, setDataProductDetail] = useState(null);
-  const [basisPoint, setBasisPoint] = useState(0)
   const [ratingValue, setRatingValue] = useState(4)
-  const [listReviewerIds, setListReviewerIds] = useState([])
   const [listDataReview, setListDataReview] = useState([])
   const [boughtProduct, setBoughtProduct] = useState(false)
   const [isOwnerProduct, setIsOwnerProduct] = useState(false)
@@ -47,28 +46,20 @@ const Page: NextPageWithLayout = () => {
 
   useEffect(() => {
     if (pid) {
-      // getProductByID(pid)
-      // getReviewerIdsByProduct(pid)
-      // getBuyerIdsByProduct(pid)
-      // if(dataUserSession.address) {
-      //   getBuyerReceipt(dataUserSession.address, pid)
-      //   getListProducBySeller(dataUserSession.address)
-      // }
+
     }
   }, [router.query, router.asPath])
 
   useEffect(() => {
     if (pid) {
       if (dataUserSession.address) {
-        console.log('dataProductDetail',dataProductDetail)
+        console.log('dataProductDetail', dataProductDetail)
         if (dataProductDetail && dataProductDetail.seller) {
           if (dataProductDetail.seller == dataUserSession.address) {
             setIsOwnerProduct(true)
           }
         }
-        // getBuyerIdsByProduct(pid)
-        // getBuyerReceipt(dataUserSession.address, pid)
-        // getListProducBySeller(dataUserSession.address)
+
       }
     }
   }, [dataUserSession.address])
@@ -77,9 +68,8 @@ const Page: NextPageWithLayout = () => {
     if (pid) {
       if (dataUserSession.contractInstance) {
         getProductByID(pid)
-        // getBuyerIdsByProduct(pid)
-        // getBuyerReceipt(dataUserSession.address, pid)
-        // getListProducBySeller(dataUserSession.address)
+        getBuyerIdsByProduct(pid)
+        getReviewDataByProduct(pid)
       }
     }
   }, [dataUserSession.contractInstance])
@@ -103,222 +93,40 @@ const Page: NextPageWithLayout = () => {
     }
   }
 
-  //   const getListProducBySeller = async (address: any) => {
-  //     const principal: string = contractOwnerAddress
+  const getBuyerIdsByProduct = async (productId: any) => {
 
-  //     const seller = standardPrincipalCV(address);
+    let tx = await dataUserSession.contractInstance.methods.get_buyer_addresses(productId)
 
-  //     console.log('address: ', address)
+    let listAddressBuyerOfProduct = tx.decodedResult
 
-  //     // call a read-only function
+    console.log('listAddressBuyerOfProduct', listAddressBuyerOfProduct)
 
-  //     const fnCall:ReadOnlyFunctionSuccessResponse = await contractsApi.callReadOnlyFunction({
-  //       contractAddress: principal,
-  //       contractName: contractName,
-  //       functionName: 'get-product-ids-by-seller',
-  //       readOnlyFunctionArgs: {
-  //         sender: principal,
-  //         arguments: [cvToHex(seller)],
-  //       },
-  //     });
-  //     if(fnCall.result !== undefined) {
-  //       let dataListProduct:any = hexToCV(fnCall.result)
-  //       console.log("dataListProductBySeller" ,dataListProduct)
-  //       if(dataListProduct['type'] == ClarityType.List) {
-  //         let checkOwner = false
-  //         dataListProduct['list'].forEach((item:any, index:number) => {
-  //             if(item['data'] == pid) {
-  //               checkOwner = true
-  //             }
-  //         })
-  //         setIsOwnerProduct(checkOwner)
-  //       }
-  //     }
-  //   }
-
-  //   const getBasisPoint = async () => {
-  //     const principal: string = contractOwnerAddress;
-
-  //     // call a read-only function
-
-  //     const fnCall:ReadOnlyFunctionSuccessResponse = await contractsApi.callReadOnlyFunction({
-  //       contractAddress: principal,
-  //       contractName: contractName,
-  //       functionName: 'get-fee-basis-points',
-  //       readOnlyFunctionArgs: {
-  //         sender: principal,
-  //         arguments: [],
-  //       },
-  //     });
-  //     if(fnCall.result !== undefined) {
-  //       let dataBasisPoin:any = hexToCV(fnCall.result)
-
-  //       if(dataBasisPoin.type == ClarityType.ResponseOk) {
-  //         setBasisPoint(Number(dataBasisPoin.value.value))
-  //       }
-
-  //       console.log('dataBasisPoint', dataBasisPoin)
-  //     }
-  //   }
-
-
-  //   const getBuyerIdsByProduct = async (productId:any) => {
-
-  //     const principal: string = contractOwnerAddress
-
-  //     const productID: StringAsciiCV = stringAsciiCV(productId);
-
-  //     console.log(productID)
-
-  //     const fnCall:ReadOnlyFunctionSuccessResponse = await contractsApi.callReadOnlyFunction({
-  //       contractAddress: principal,
-  //       contractName: contractName,
-  //       functionName: 'get-buyer-ids-by-product',
-  //       readOnlyFunctionArgs: {
-  //         sender: principal,
-  //         arguments: [cvToHex(productID)],
-  //       },
-  //     });
-
-  //     if(fnCall.result) {
-  //       let dataBuyerIDs:any = hexToCV(fnCall.result)
-  //       if(dataBuyerIDs.type == ClarityType.List && dataUserSession.address) {
-  //         let dataBuyerIDsToJSON = cvToJSON(dataBuyerIDs)
-  //         dataBuyerIDsToJSON['value'].forEach((item:any) => {
-  //           if(item['value'] == dataUserSession.address) {
-  //             // Pudcharsed
-  //             setIsPurchasedProduct(true)
-  //           }
-  //         })
-  //         console.log('dataBuyerIDsToJSON', dataBuyerIDsToJSON)
-  //       }
-  //     }
-
-  //   }
-
-  //   const getBuyerReceipt = async (addressBuyer: any, productID: any) => {
-  //     const principal: string = contractOwnerAddress
-
-  //     const buyer = standardPrincipalCV(addressBuyer);
-  //     const prodID: StringAsciiCV = stringAsciiCV(productID);
-
-  //     console.log('address: ', addressBuyer)
-
-  //     // call a read-only function
-
-  //     const fnCall:ReadOnlyFunctionSuccessResponse = await contractsApi.callReadOnlyFunction({
-  //       contractAddress: principal,
-  //       contractName: contractName,
-  //       functionName: 'get-buyer-receipt',
-  //       readOnlyFunctionArgs: {
-  //         sender: principal,
-  //         arguments: [cvToHex(buyer), cvToHex(prodID) ],
-  //       },
-  //     });
-
-  //     if(fnCall.result !== undefined) {
-  //       let dataBuyerReceipt:any = hexToCV(fnCall.result)
-  //       console.log('dataBuyerReceipt',dataBuyerReceipt)
-
-  //       if(dataBuyerReceipt['type'] == ClarityType.OptionalSome) {
-  //         // Bought
-  //         setBoughtProduct(true)
-
-  //       } else {
-  //         // Haven't bought or can't buy
-  //         setBoughtProduct(false)
-  //       }
-  //     }
-
-  // }
-
-  //   const getReviewerIdsByProduct = async (productId:any) => {
-  //     const principal: string = contractOwnerAddress
-
-  //     const productID: StringAsciiCV = stringAsciiCV(productId);
-
-  //     const fnCall:ReadOnlyFunctionSuccessResponse = await contractsApi.callReadOnlyFunction({
-  //       contractAddress: principal,
-  //       contractName: contractName,
-  //       functionName: 'get-reviewer-ids-by-product',
-  //       readOnlyFunctionArgs: {
-  //         sender: principal,
-  //         arguments: [cvToHex(productID)],
-  //       },
-  //     });
-  //     if(fnCall.result !== undefined) {
-  //       let dataIdsReviewer:any = hexToCV(fnCall.result)
-  //         if(dataIdsReviewer['type'] == ClarityType.List) {
-  //         console.log('dataIdsReview', dataIdsReviewer['list'])
-  //         listReviewerIds = dataIdsReviewer['list']
-  //         setListReviewerIds(toObject(dataIdsReviewer['list']))
-  //         getListReviewByIdsReviewer(dataIdsReviewer['list'])
-  //       }
-  //     }
-  //   }
-
-  //   const getListReviewByIdsReviewer = (dataIds:any) => {
-
-  //     let listPromise:any = []
-
-  //     dataIds.forEach((item:any) => {
-  //         listPromise.push(checkReviewExist(item))
-  //     })
-
-  //     if(listPromise.length > 0) {
-  //         Promise.all(listPromise).then((values) => {
-
-  //             let listDataReviewTemp:any = []
-
-  //             values.forEach((item_value,index) => {
-  //                 let dataReview:any = hexToCV(item_value.result)
-  //                 console.log('dataReview' + index, dataReview)
-  //                 if(dataReview['type'] == ClarityType.OptionalSome) {
-  //                   let dataFormat = dataReview['value']['data']
-  //                   let obj = {
-  //                       address: cvToJSON(listReviewerIds[index]).value,
-  //                       content: dataFormat['content']['data'],
-  //                       star:  Number(dataFormat['star']['value'])
-  //                   }
-  //                   listDataReviewTemp.push(obj)
-  //                 }
-  //             })
-
-  //             listDataReview = listDataReviewTemp
-  //             console.log('listDataReview',listDataReview)
-
-  //             let temp = toObject(listDataReviewTemp)
-  //             setListDataReview(temp)
-
-
-  //             if(dataUserSession.address) {
-  //               let haveComment = false
-  //               listDataReview.forEach((itemReview:any) => {
-  //                   if(dataUserSession.address?.toLowerCase() == itemReview.address.toLowerCase()) {
-  //                       haveComment = true
-  //                   }
-  //               })
-  //               setAlreadyComment(haveComment)
-  //             }
-
-  //         });
-  //     }
-  //   }
-
-  const checkReviewExist = (address: any) => {
-    if (address['type'] == ClarityType.PrincipalStandard) {
-      const principal: string = contractOwnerAddress;
-      const productID: StringAsciiCV = stringAsciiCV(pid);
-
-      return contractsApi.callReadOnlyFunction({
-        contractAddress: principal,
-        contractName: contractName,
-        functionName: 'check-review-exist',
-        readOnlyFunctionArgs: {
-          sender: principal,
-          arguments: [cvToHex(productID), cvToHex(address)],
-        },
+    if (dataUserSession.address) {
+      listAddressBuyerOfProduct.forEach((item: any, index: number) => {
+        if (item == dataUserSession.address) {
+          setIsPurchasedProduct(true)
+          setBoughtProduct(true)
+        }
       })
+    }
+  }
+  const getReviewDataByProduct = async (productId: any) => {
+    try {
+      let tx = await dataUserSession.contractInstance.methods.get_reviews(productId)
+      let listReviewOfProduct = tx.decodedResult
+      console.log('listReviewOfProduct', listReviewOfProduct);
+      listDataReview = listReviewOfProduct
+      let temp = toObject(listReviewOfProduct)
+      setListDataReview(temp)
+
+      if (dataUserSession.address) {
+        listReviewOfProduct.forEach((item: any) => {
+          if (item.reviewer == dataUserSession.address) {
+            setAlreadyComment(true)
+          }
+        })
+      }
+    } catch (error) {
     }
   }
 
@@ -393,51 +201,32 @@ const Page: NextPageWithLayout = () => {
     createReview(dataForm)
   }
 
-  const writeProductIdAndTxIdToJsonFile = async (address: string | undefined, txId: string, type: string) => {
-    let obj = {
-      tx: txId,
-      address: address,
-      type: type,
-    }
-    const response = await fetch('/api/transaction', {
-      method: 'POST', // *GET, POST, PUT, DELETE, etc.
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(obj) // body data type must match "Content-Type" header
-    });
-    console.log(response)
-
-    // return response.json(); // parses JSON response into native JavaScript objects
-  }
-
   const createReview = async (dataCoupon: any) => {
-    const network = new currentNetwork()
 
-    let data;
+    let productID = pid
+    let comment = dataCoupon.commentReview
+    let rating = Number(ratingValue)
 
-    const productID: StringAsciiCV = stringAsciiCV(pid);
+    console.log(productID, comment, rating)
 
-    data = [
-      productID,
-      stringAsciiCV(dataCoupon['commentReview']),
-      uintCV(Number(ratingValue)),
-    ]
+    try {
 
-    const options: ContractCallRegularOptions = {
-      contractAddress: contractOwnerAddress,
-      contractName: contractName,
-      functionName: 'add-review',
-      functionArgs: data,
-      network,
-      appDetails,
-      onFinish: ({ txId }) => {
-        writeProductIdAndTxIdToJsonFile(dataUserSession.address, txId, 'review-product')
-        // addTransactionToast(txId, `Create review ${truncateMiddle(contractOwnerAddress)}...`)
-      },
+      let tx = await dataUserSession.contractInstance.methods.add_review(productID, comment, rating);
+
+      console.log('tx')
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Create review success!',
+        text: 'Estimated completion time: 3 to 5 minutes or maybe sooner',
+        showConfirmButton: true
+      }).then((result) => {
+        window.location.reload()
+      })
+
+    } catch (error) {
+
     }
-
-    await openContractCall(options)
   }
 
   const ratingChanged = (newRating: any, prevRating: any, name: any) => {
@@ -474,6 +263,7 @@ const Page: NextPageWithLayout = () => {
     let randomColor3 = Math.floor(Math.random() * 255);
     return 'rgb(' + randomColor1 + ',' + randomColor2 + ',' + randomColor3 + ')'
   }
+
   const renderListReview = () => {
 
     return (
@@ -487,13 +277,13 @@ const Page: NextPageWithLayout = () => {
             <div className="media mb-4" key={index}>
 
               <div className='random-avatar' style={{ backgroundColor: colorRandom() }}>
-                {truncateString(item.address, 3)}
+                {truncateString(item.reviewer, 3)}
               </div>
 
               <div className="media-body">
-                <h6>{item.address}</h6>
+                <h6>{item.reviewer}</h6>
                 <div className="text-primary mb-2">
-                  <ReactStars name={'rateprod' + index} editing={false} starCount={5} value={item.star} starColor={'#ffd700'}></ReactStars>
+                  <ReactStars name={'rateprod' + index} editing={false} starCount={5} value={Number(item.star)} starColor={'#ffd700'}></ReactStars>
                 </div>
                 <p>{item.content}</p>
               </div>
@@ -563,7 +353,7 @@ const Page: NextPageWithLayout = () => {
               <p className="font-weight-semi-bold">Adress Owner: {dataProductDetail['seller']}</p>
             </div>
             <h3 className="font-weight-semi-bold mb-4">
-              {(Number(dataProductDetail['price'])/(10**18)).toFixed(4)}
+              {(Number(dataProductDetail['price']) / (10 ** 18)).toFixed(4)}
               <span className='currency-product'> AE</span>
             </h3>
 

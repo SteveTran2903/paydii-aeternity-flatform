@@ -155,6 +155,7 @@ export default stampit({
             let {
                 onAccount
             } = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+            console.log('getCurrentAccount')
             return onAccount || Object.keys(this.accounts.current)[0];
         },
 
