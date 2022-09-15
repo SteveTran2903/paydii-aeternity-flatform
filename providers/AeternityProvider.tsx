@@ -18,7 +18,7 @@ interface AeternityContextValue {
   walletUser: any,
   address?: string,
   handleLogIn: () => void,
-  handleLogOut: () => void,
+  handleLogOut: () => void
 }
 
 const AeternityContext = createContext<AeternityContextValue | undefined>(undefined);
@@ -58,7 +58,6 @@ export default function AeternityProvider({ children }: PropsWithChildren<{}>) {
     })
   }
 
-
   const handleLogIn = async () => {
     // Start looking for wallets
     await scanForWallets() // Start looking for new wallets
@@ -67,6 +66,7 @@ export default function AeternityProvider({ children }: PropsWithChildren<{}>) {
   const handleLogOut = async () => {
     setAddress(null)
     setWalletUser(null)
+    window.location.reload()
     // let logout = await sdkAeternity.disconnectWallet(false); 
     // console.log('logout',logout)
   }
@@ -158,12 +158,12 @@ export default function AeternityProvider({ children }: PropsWithChildren<{}>) {
     const handleWallets = async function ({ wallets, newWallet }) {
       newWallet = newWallet || Object.values(wallets)[0]
       // ask if you want to connect
-      if (confirm(`Do you want to connect to wallet ${newWallet.name}`)) {
-        // Stop scanning wallets
-        detector.stopScan()
-        // Connect to wallet
-        await connectToWallet(newWallet)
-      }
+      // if (confirm(`Do you want to connect to wallet ${newWallet.name}`)) {
+      // Stop scanning wallets
+      detector.stopScan()
+      // Connect to wallet
+      await connectToWallet(newWallet)
+      // }
     }
 
     // Create connection object for WalletDetector

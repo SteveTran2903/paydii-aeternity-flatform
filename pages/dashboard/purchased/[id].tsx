@@ -3,17 +3,12 @@ import LayoutDashboard from '../../../components/LayoutDashboard'
 import type { NextPageWithLayout } from '../../_app'
 import { useForm } from 'react-hook-form';
 import { useEffect, useState } from "react";
-import { contractOwnerAddress, contractName, currentNetwork} from '../../../network-config';
-import { StringAsciiCV,stringUtf8CV,uintCV, trueCV,falseCV, stringAsciiCV, cvToHex, hexToCV, standardPrincipalCV , ClarityType } from '@stacks/transactions';
-import { ReadOnlyFunctionSuccessResponse } from '@stacks/blockchain-api-client';
-import {contractsApi} from '../../../api/config';
 import { useRouter } from 'next/router'
-import { appDetails } from "../../../lib/constants"
-import { useTransactionToasts } from "../../../providers/TransactionToastProvider";
-import { ContractCallRegularOptions, openContractCall, UserData } from "@stacks/connect";
+
+
 import truncateMiddle from "../../../lib/truncate";
 
-import { useStacks } from "../../../providers/StacksProvider";
+import { useAeternity } from "../../../providers/AeternityProvider";
 import Swal from 'sweetalert2'
 import LoadingData from '../../../components/LoadingData';
 
@@ -24,7 +19,7 @@ const Page: NextPageWithLayout = () => {
     console.log(id)
 
     const { register, handleSubmit, setValue, getValues, formState: {isValid, errors} } = useForm({mode: 'onChange'});
-    const { addTransactionToast } = useTransactionToasts()
+   
 
     const regexWebsite = new RegExp(/http[s]?:\/\/(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+/gm)
 
@@ -33,21 +28,18 @@ const Page: NextPageWithLayout = () => {
     const [listFileUpload, setListFileUpload] = useState([]);
     const [loadingData, setLoadingData] = useState(true)
 
-    const dataUserSession = useStacks()
+    const [dataDownloadLink,setDataDownloadLink] = useState('')
+ 
+    const dataUserSession = useAeternity()
     
     useEffect(() => {
         if(id) {
-            getProductByID(id)
+            // getProductByID(id)
             getUrlGaiaFromMongoDB(id)
         }
-        // 
     },[router.query])
 
 
-    const handleEditProduct = (dataForm:any) => {
-        console.log("dataForm",dataForm)
-        editProduct(dataForm)
-    }
 
     const getUrlGaiaFromMongoDB = async (productID:any) => {
 
@@ -70,125 +62,14 @@ const Page: NextPageWithLayout = () => {
             console.log('listproductDownloadURL', dataUrlObj)
             if(dataUrlObj['document']) {
                 if(dataUrlObj['document']['download_links']) {
-                    let listLinkDownLoad = dataUrlObj['document']['download_links'].split(',')
-                    
-                    let listObjFormat = listLinkDownLoad.map((item:any) => {
-                        let tempObj = {
-                            name: '....' + item.slice(item.length - 35, item.length),
-                            urlServer : item
-                        }
-                        return tempObj
-                    }) 
- 
-                    listFileUpload= toObject(listObjFormat)
-                    setListFileUpload(toObject(listObjFormat))
+                    let linkDownload = dataUrlObj['document']['download_links'][0]
+                    console.log('linkDownload',linkDownload)
+                    setDataDownloadLink(linkDownload)
                     setLoadingData(false)
                 }
             }
         }
        
-    }
-
-    const updateUrlGaiaToMongoDB = async (productID:string) => {
-
-        let listUrl = listFileUpload.map((item:any) => {
-            return item.urlServer
-        })
-
-        const data = {
-                "product_id": productID,
-                "download_links": listUrl.join(',')
-            }
-    
-       
-        const response = await fetch('https://paydii-api.herokuapp.com/updateOne', { 
-            method: 'POST', 
-            headers: new Headers({
-                'Accept': 'application/ejson',
-                'Access-Control-Request-Headers': '*',
-                'Content-Type': 'application/json'
-            }), 
-            body: JSON.stringify(data)
-        });
-
-        console.log(response)
-    }
-
-    const writeProductIdAndTxIdToJsonFile = async (address:string|undefined,txId:string, type:string) => {
-        let obj = {
-            tx: txId,
-            address: address,
-            type: type,
-        }
-        const response = await fetch('/api/transaction', {
-            method: 'POST', // *GET, POST, PUT, DELETE, etc.
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(obj) // body data type must match "Content-Type" header
-          });
-        console.log(response)
-    }
-
-
-    const editProduct = async (dataProduct:any) => {
-
-        if(listFileUpload.length == 0 ) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops... You forgot import File!',
-                text: 'You forgot to import the file when the user bought your product',
-              })
-        }
-        else {
-            const network = new currentNetwork()
-
-            let data;
-            
-            if (dataProduct['activeProduct']) {
-                data = [
-                    stringAsciiCV(id),
-                    stringAsciiCV(dataProduct['productName']),
-                    stringUtf8CV(dataProduct['productDescription']),
-                    stringAsciiCV(dataProduct['productImage']),
-                    uintCV(Number(dataProduct['priceOfProduct']*1000000)),
-                    trueCV()
-                ]
-            } else {
-                data = [
-                    stringAsciiCV(id),
-                    stringAsciiCV(dataProduct['productName']),
-                    stringUtf8CV(dataProduct['productDescription']),
-                    stringAsciiCV(dataProduct['productImage']),
-                    uintCV(Number(dataProduct['priceOfProduct']*1000000)),
-                    falseCV()
-                ]
-            }
-
-            const options: ContractCallRegularOptions = {
-            contractAddress: contractOwnerAddress,
-            contractName: contractName,
-            functionName: 'update-product',
-            functionArgs: data,
-            network,
-            appDetails,
-            onFinish: ({ txId }) => {
-                    writeProductIdAndTxIdToJsonFile(dataUserSession.address,txId, 'edit-product')
-                    updateUrlGaiaToMongoDB(id)
-                    addTransactionToast(txId, `Update Product ${dataProduct['productName']} to ${truncateMiddle(contractOwnerAddress)}...`)
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Updating this product on Stacks blockchain, please wait for a moment!',
-                        text: 'Estimated completion time: 3 to 5 minutes or maybe sooner',
-                        showConfirmButton: true
-                    }).then((result) => {
-                        router.push('/seller/catalog/products')
-                    })
-                },
-            }
-
-            await openContractCall(options)
-        }
     }
 
     const getProductByID = async (id:any) => {
@@ -254,96 +135,12 @@ const Page: NextPageWithLayout = () => {
         ));
     }
   
-    const handleChange = (event:any) => {
-        setImageProductTemp(event.target.value)
-    }
-
     const goToUrl = (url:string) => {
         window.open(url,'_blank');
     }
-
-    const removeFileServer = async (file:any) => {
-        console.log(file)
-        let path = 'fileProduct/' + file.name
-
-        const removeResponse = await dataUserSession.storage.deleteFile(path);
-
-        console.log(removeResponse)
-    }
-
-
-    const removeFile = (fileObj:any, index:number) =>{
-        removeFileServer(fileObj)
-        
-        // remove file in local
-        let array = toObject(listFileUpload)
-        array.splice(index, 1);
-        listFileUpload= array
-        setListFileUpload(toObject(array))
-    }
-
-    const uploadToClient = (event:any) => {
-        if (event.target.files && event.target.files[0]) {
-            const i = event.target.files[0];
-            uploadToServer(i)
-        }
-    };
-
-    const uploadToServer = async (file:any) => {
-       
-        console.log(file)
-        let path = 'fileProduct/' + file.name
-
-        let putFileOptions = {
-            contentType: file.type, 
-            encrypt: false,
-            dangerouslyIgnoreEtag: true
-        }
-       
-        const fileUrl = await dataUserSession.storage.putFile(path,file, putFileOptions);
-
-        console.log(fileUrl)
-
-        let objData = {
-            urlServer : fileUrl,
-            name: file.name
-        }
-
-        listFileUpload.push(objData)
-        setListFileUpload(toObject(listFileUpload))
-    };
     
 
-    const renderDownloadFileWhenEditProduct = () => {
-        return (
-            <div className="row">
-                <div className="col-md-12 mt-4">
-                    <div className="form-group">
-                        <div className='list-file-upload'>
-                            {listFileUpload.map((item:any, index:number) => {
-                                return (
-                                    <div key={index} className="item-filer-upload">
-                                        <div className='file-name'>
-                                            {item.name}
-                                        </div>
-                                        <div className='group-button-control d-flex '>
-                                            <button onClick={(e) => {e.preventDefault(); goToUrl(item.urlServer)}} className="btn btn-sm btn-warning mr-3 d-flex align-items-center pl-2 pr-2" >
-                                                <i className='mdi mdi-eye mr-2'></i>
-                                                View And Download file
-                                            </button>
-                                        </div>
-                                    </div>
-                                )
-                            })}
-                        </div>
-                    </div>
-                </div>
-                
-            </div>
-        )
-    }
-
-
+    
     return (
         <div className="row">
             <div className="col-md-10 grid-margin stretch-card">
@@ -359,7 +156,10 @@ const Page: NextPageWithLayout = () => {
                         <div className='mt-5' style={{position: 'relative'}}>
                             <LoadingData loading={loadingData}></LoadingData>
                         </div>
-                        {renderDownloadFileWhenEditProduct()}
+                        <div className='download-link-wrapper'>
+                            <a href={dataDownloadLink} target="_blank">{dataDownloadLink}</a>
+                            
+                        </div>
                     </div>
                 </div>
             </div>

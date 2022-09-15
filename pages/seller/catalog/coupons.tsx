@@ -4,13 +4,6 @@ import type { NextPageWithLayout } from '../../_app'
 import { useEffect, useState } from "react";
 import { useAeternity } from "../../../providers/AeternityProvider";
 
-// import { contractOwnerAddress, contractName, fullContractOwnerAddressName } from '../../../network-config';
-// import { StringAsciiCV, stringAsciiCV, cvToHex, hexToCV, standardPrincipalCV , ClarityType } from '@stacks/transactions';
-// import { ReadOnlyFunctionSuccessResponse } from '@stacks/blockchain-api-client';
-// import {contractsApi} from '../../../api/config';
-// import { getTxsAddressByPagination, getTxsContractTemp,getTxsAddressContractByPagination,getTxsAddressTemp } from '../../../api/transaction';
-
-
 import Link from 'next/link'
 import TableCoupons from '../../../components/sellerDashboardComponents/TableCoupons';
 import LoadingData from '../../../components/LoadingData';
@@ -36,15 +29,7 @@ const Page: NextPageWithLayout = () => {
 
   useEffect(() => {
     if(dataUserSession.address) {
-     
-      // getTxsContractTemp().then(txsInfo => {
-      //   let totalItem:number = txsInfo['total']
-      //   execPromiseContract(getListPromiseOfAllTxsContract(totalItem))
-      // })
-
-
-      // getListProducBySeller(dataUserSession.address)
-      // getBuyerIdsByProduct(pid)
+      
     }
   },[dataUserSession.address])
 
@@ -61,30 +46,29 @@ const Page: NextPageWithLayout = () => {
     
     let listCouponOfSeller = await dataUserSession.contractInstance.methods.get_seller_coupons(dataUserSession.address)
     console.log('listCouponIDsOfSeller', listCouponOfSeller.decodedResult)
-    // getDetailAllCouponOfSeller(listCouponOfSeller.decodedResult)
+    getDetailAllCouponOfSeller(listCouponOfSeller.decodedResult)
   }
 
   const getDetailAllCouponOfSeller = (listCouponIds: any) => {
 
     let listPromise: any[] = []
-    listCouponIds.forEach((itemId: any) => {
-      listPromise.push(dataUserSession.contractInstance.methods.get_coupon_details(itemId))
+    listCouponIds.forEach((item: any) => {
+      listPromise.push(dataUserSession.contractInstance.methods.get_coupon_details(item.product_id, item.code,item.seller))
     })
 
     Promise.all(listPromise).then((values) => {
-      let listProductDetail: any = []
+      let listDetailCoupon: any = []
 
       values.forEach((item_value, index) => {
         let obj = item_value.decodedResult
-        obj.urlBuy = '/detail-product/' + item_value.decodedResult.id
-        listProductDetail.push(obj)
+        listDetailCoupon.push(obj)
       })
 
-      console.log('listProductSelletDetailFinal', listProductDetail);
+      console.log('listDetailCoupon', listDetailCoupon);
 
-      templateListProduct = listProductDetail
-      let temp = toObject(listProductDetail)
-      setTemplateListProduct(temp)
+      listCouponDetail = listDetailCoupon
+      let temp = toObject(listDetailCoupon)
+      setListCouponDetail(temp)
     });
 
     setLoadingData(false)
