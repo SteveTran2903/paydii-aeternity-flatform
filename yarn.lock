@@ -442,6 +442,11 @@
   dependencies:
     "safe-buffer" "^5.0.1"
 
+"base-x@^4.0.0":
+  "integrity" "sha512-FuwxlW4H5kh37X/oW59pwTzzTKRzfrrQwhmyspRM7swOEZcHtDZSCt45U6oKgtuFE+WYPblePMVIPR4RZrh/hw=="
+  "resolved" "https://registry.npmjs.org/base-x/-/base-x-4.0.0.tgz"
+  "version" "4.0.0"
+
 "bignumber.js@^9.0.0":
   "integrity" "sha512-4LwHK4nfDOraBCtst+wOWIHbu1vhvAPJK8g8nROd4iuc3PSEjWif/qwbkh8jwCJz6yDBvtU4KPynETgrfh7y3A=="
   "resolved" "https://registry.npmjs.org/bignumber.js/-/bignumber.js-9.1.0.tgz"
@@ -497,6 +502,13 @@
   "version" "4.0.1"
   dependencies:
     "base-x" "^3.0.2"
+
+"bs58@^5.0.0":
+  "integrity" "sha512-r+ihvQJvahgYT50JD05dyJNKlmmSlMoOGwn1lCcEzanPglg7TxYjioQUYehQ9mAR/+hOSd2jRc/Z2y5UxBymvQ=="
+  "resolved" "https://registry.npmjs.org/bs58/-/bs58-5.0.0.tgz"
+  "version" "5.0.0"
+  dependencies:
+    "base-x" "^4.0.0"
 
 "bs58check@^2.1.2":
   "integrity" "sha512-0TS1jicxdU09dwJMNZtVAfzPi6Q6QeN0pM1Fkzrjn+XYHvzMKPU3pHVpva+769iNVSfIYWf7LJ6WR+BuuMf8cA=="
