@@ -9,6 +9,7 @@ payable contract Paydii =
         , total_product_sale: int
         , total_sale: int
         , products  : map(string, product)
+        , product_list: list(string)
         , products_by_seller: map(address, list(string)) 
         , coupons: map(coupon_key,coupon) // each product has many coupons (code,coupon)
         , coupons_by_seller: map(address, list(coupon_key)) // each seller has many coupons (address,code)
@@ -59,6 +60,7 @@ payable contract Paydii =
         {   products = {},
             coupons = {},
             buyers = {},
+            product_list = [],
             buyer_addresses = {},
             coupons_by_seller = {},
             products_by_seller = {},
@@ -193,6 +195,15 @@ payable contract Paydii =
         put(state{products[id] = new_product})
         // update total product
         put(state{index = (state.index + 1)})
+        
+        // add total products 
+
+        if ( state.product_list == [] )
+            put(state{product_list = [id] })
+        else 
+            let current_product_list = state.product_list
+            let new_product_list = List.insert_at(List.length(current_product_list) - 1,id,current_product_list)
+            put(state{product_list = new_product_list })        
 
         // add product by seller 
         // create product for the first time
@@ -253,6 +264,9 @@ payable contract Paydii =
 
         new_review
 
+    // get all review from a user
+    entrypoint get_all_products() : list(string) =  
+        state.product_list 
     // get list of product a seller has created 
     entrypoint get_seller_products(seller: address) : list(string) =  
         if (Map.lookup(seller,state.products_by_seller) == None)
