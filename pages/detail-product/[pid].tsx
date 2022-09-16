@@ -218,7 +218,7 @@ const Page: NextPageWithLayout = () => {
       Swal.fire({
         icon: 'success',
         title: 'Create review success!',
-        text: 'Estimated completion time: 3 to 5 minutes or maybe sooner',
+        text: 'Estimated completion time: a few seconds or maybe sooner',
         showConfirmButton: true
       }).then((result) => {
         window.location.reload()

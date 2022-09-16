@@ -193,13 +193,13 @@ const Page: NextPageWithLayout = () => {
 
             <div className={statisticType == 'revenue' ? "item-statistic active" : "item-statistic"} onClick={() => setStatisticType('revenue')}>
               <p className="statistics-title">Revenue</p>
-              <h3 className="rate-percentage"><span className='text-success'>{revenueSeller}</span>  STX</h3>
+              <h3 className="rate-percentage"><span className='text-success'>{revenueSeller}</span>  AE</h3>
               <p className="text-success d-flex justify-center"><i className="mdi mdi-menu-up" /><span>+ 100%</span></p>
             </div>
 
             <div className={statisticType == 'profit' ? "item-statistic active" : "item-statistic"} onClick={() => setStatisticType('profit')}>
               <p className="statistics-title">Profit</p>
-              <h3 className="rate-percentage"><span className='text-success'>{profitSeller}</span> STX</h3>
+              <h3 className="rate-percentage"><span className='text-success'>{profitSeller}</span> AE</h3>
               <p className="text-success d-flex justify-center"><i className="mdi mdi-menu-up" /><span>+ 100%</span>
               </p>
             </div>

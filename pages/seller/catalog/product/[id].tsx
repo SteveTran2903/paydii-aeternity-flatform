@@ -133,7 +133,7 @@ const Page: NextPageWithLayout = () => {
                 Swal.fire({
                     icon: 'success',
                     title: 'Updating this product on Stacks blockchain, please wait for a moment!',
-                    text: 'Estimated completion time: 3 to 5 minutes or maybe sooner',
+                    text: 'Estimated completion time: a few seconds or maybe sooner',
                     showConfirmButton: true
                 }).then((result) => {
                     router.push('/seller/catalog/products')
@@ -207,8 +207,8 @@ const Page: NextPageWithLayout = () => {
                                 <div className="row">
                                     <div className="col-md-6">
                                         <div className="form-group">
-                                            <label>Price of product in STX (*)</label>
-                                            <input step='any' type="number" {...register('priceOfProduct', { required: true, valueAsNumber: true })} min={0} className="form-control" placeholder="Set price of product (STX)" />
+                                            <label>Price of product in AE (*)</label>
+                                            <input step='any' type="number" {...register('priceOfProduct', { required: true, valueAsNumber: true })} min={0} className="form-control" placeholder="Set price of product (AE)" />
                                             {errors?.priceOfProduct?.type === 'required' && <span className='text-error-form'>This field is required!</span>}
                                             {errors?.priceOfProduct?.type === 'valueAsNumber' && <span className='text-error-form'>This field input number!</span>}
                                         </div>

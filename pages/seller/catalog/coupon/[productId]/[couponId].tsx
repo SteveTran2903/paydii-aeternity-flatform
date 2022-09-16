@@ -188,7 +188,7 @@ const Page: NextPageWithLayout = () => {
 
                             <div className="form-group">
                                 <label>Amount STX</label>
-                                <input step='any' type="number" {...register('amountValueCoupon', { required: true, valueAsNumber: true })} className="form-control" placeholder="Amount STX you want to discount" />
+                                <input step='any' type="number" {...register('amountValueCoupon', { required: true, valueAsNumber: true })} className="form-control" placeholder="Amount AE you want to discount" />
                                 {errors?.amountValueCoupon?.type === 'required' && <span className='text-error-form'>This field is required!</span>}
                                 {errors?.amountValueCoupon?.type === 'valueAsNumber' && <span className='text-error-form'>This field input number!</span>}
                             </div>

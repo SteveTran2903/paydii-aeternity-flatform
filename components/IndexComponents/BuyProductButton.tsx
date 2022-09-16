@@ -89,7 +89,7 @@ export default function BuyProductButton(props: any) {
     Swal.fire({
       icon: 'success',
       title: 'Buying products on blockchain, please wait a moment!',
-      text: 'Estimated completion time: 3 to 5 minutes or maybe sooner',
+      text: 'Estimated completion time: a few seconds or maybe sooner',
       showConfirmButton: true
     }).then((result) => {
       // router.push('/seller/catalog/products')
@@ -109,7 +109,7 @@ export default function BuyProductButton(props: any) {
     Swal.fire({
       icon: 'success',
       title: 'Buying products on blockchain, please wait a moment!',
-      text: 'Estimated completion time: 3 to 5 minutes or maybe sooner',
+      text: 'Estimated completion time: a few seconds or maybe sooner',
       showConfirmButton: true
     }).then((result) => {
       // router.push('/seller/catalog/products')
